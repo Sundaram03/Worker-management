@@ -1,7 +1,10 @@
+import { db } from "./firebase";
+import { collection, addDoc } from "firebase/firestore";
 import React, { useState, createContext, useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, NavLink, Navigate } from 'react-router-dom';
 import { translations } from './translations';
 import { useStore } from './store';
+
 
 import Dashboard from './Dashboard';
 import Workers from './Workers';
@@ -18,7 +21,21 @@ export default function App() {
   const [lang, setLang] = useState('en');
   const t = translations[lang];
   const { user, logout } = useStore();
+ async function saveWorker() {
+    try {
+      await addDoc(collection(db, "workers"), {
+        name: "Test Worker",
+        attendance: "Present",
+        wagePaid: 500,
+        wagePending: 200
+      });
 
+      alert("Saved ✅");
+    } catch (e) {
+      console.error(e);
+      alert("Error ❌");
+    }
+  }
   if (!user) {
     return (
       <LanguageContext.Provider value={{ lang, setLang, t }}>
@@ -41,6 +58,12 @@ export default function App() {
                 <button onClick={() => setLang(lang === 'en' ? 'ta' : 'en')} className="flex items-center gap-12" style={{ padding: '8px 16px', background: '#f0f0f0', border: '1px solid var(--border)', borderRadius: '8px', fontWeight: 600 }}>
                   🌐 {lang === 'en' ? 'EN' : 'தமிழ்'}
                 </button>
+                <button
+                   onClick={saveWorker}
+                    style={{ padding: '8px 16px', background: '#4CAF50', color: 'white' }}
+                  >
+                   Save Test
+                   </button>
                 <div style={{ background: '#eee', padding: '8px 16px', borderRadius: '8px', fontWeight: 600, fontSize: '0.875rem' }}>
                   {user.name} ({user.role})
                 </div>
